@@ -19,7 +19,7 @@
 		<java.version>1.8</java.version>
 		<spring-cloud.version>Greenwich.RC2</spring-cloud.version>
 		<start-class>com.scc.pub.Application</start-class>
-		<docker.image.name>anthonydenecheau/sub-onlinedogshow-daemon</docker.image.name>
+		<docker.image.name>anthonydenecheau/pub-dog-daemon</docker.image.name>
 		<docker.image.tag>${env.BUILD_NAME}</docker.image.tag>
 	</properties>
 

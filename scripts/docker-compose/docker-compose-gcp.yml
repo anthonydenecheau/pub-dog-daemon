@@ -1,14 +1,14 @@
 version: '2'
 services:
   pubdogdaemon:
-    image: anthonydenecheau/pub-dog-daemon:pub-dog-daemon-master-20190110143529-16
+    image: anthonydenecheau/pub-dog-daemon:${TAG_PUB_DOG_SERVICE}
     container_name: pub-dogdaemon
     restart: always    
     ports:
-      - "8083:8083"
+      - "8200:8200"
     environment:
       PROFILE: "default"
-      SERVER_PORT: "8083"
+      SERVER_PORT: "8200"
       SPRING_DATASOURCE_USERNAME: "U_WEBSERVICES"
       SPRING_DATASOURCE_PASSWORD: "INFPOLMDP155"
       DATABASESERVER_NAME: "lof"
