@@ -16,37 +16,37 @@ import org.springframework.stereotype.Service;
 @Service
 public class DogService extends AbstractGenericService<Dog> {
 
-    private static final Logger logger = LoggerFactory.getLogger(DogService.class);
+	private static final Logger logger = LoggerFactory.getLogger(DogService.class);
 
-    @Autowired
-    private DogRepository dogRepository;
+	@Autowired
+	private DogRepository dogRepository;
 
-    public DogService(PubSubGateway pubSubGateway) {
-        super(pubSubGateway, Constants.dogDomaine);
-    }
+	public DogService(PubSubGateway pubSubGateway) {
+		super(pubSubGateway, Constants.dogDomaine);
+	}
 
-    public Dog getDogById(long dogId) {
+	public Dog getDogById(long dogId) {
 
-        try {
-            return dogRepository.findById(dogId);
-        } finally {
-        }
-    }
+		try {
+			return dogRepository.findById(dogId);
+		} finally {
+		}
+	}
 
-    @SuppressWarnings("unchecked")
-    @Override
-    protected <T> T populateMessage(int _id, String _action) {
+	@SuppressWarnings("unchecked")
+	@Override
+	protected <T> T populateMessage(int _id, String _action) {
 
-        Dog dog = new Dog();
-        if (!_action.equals("D")) {
-            dog = getDogById(_id);
-            if (dog == null) {
-                return null;
-            }
-        } else
-            dog.withId(_id);
+		Dog dog = new Dog();
+		if (!_action.equals("D")) {
+			dog = getDogById(_id);
+			if (dog == null) {
+				return null;
+			}
+		} else
+			dog.withId(_id);
 
-        return (T) dog;
-    }
+		return (T) dog;
+	}
 
 }

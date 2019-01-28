@@ -21,41 +21,41 @@ import org.springframework.util.concurrent.ListenableFutureCallback;
 @Configuration
 public class PubConfiguration {
 
-    private static final Log LOGGER = LogFactory.getLog(PubConfiguration.class);
+	private static final Log LOGGER = LogFactory.getLog(PubConfiguration.class);
 
-    @Value("${spring.cloud.stream.bindings.output.destination}")
-    private String TOPIC_NAME;
+	@Value("${spring.cloud.stream.bindings.output.destination}")
+	private String TOPIC_NAME;
 
-    @Bean
-    public DirectChannel pubSubOutputChannel() {
-        return new DirectChannel();
-    }
+	@Bean
+	public DirectChannel pubSubOutputChannel() {
+		return new DirectChannel();
+	}
 
-    @Bean
-    @ServiceActivator(inputChannel = "pubSubOutputChannel")
-    public MessageHandler messageSender(PubSubTemplate pubSubTemplate) {
-        PubSubMessageHandler adapter = new PubSubMessageHandler(pubSubTemplate, TOPIC_NAME);
-        adapter.setPublishCallback(new ListenableFutureCallback<String>() {
-            @Override
-            public void onFailure(Throwable ex) {
-                LOGGER.info("There was an error sending the message.");
-            }
+	@Bean
+	@ServiceActivator(inputChannel = "pubSubOutputChannel")
+	public MessageHandler messageSender(PubSubTemplate pubSubTemplate) {
+		PubSubMessageHandler adapter = new PubSubMessageHandler(pubSubTemplate, TOPIC_NAME);
+		adapter.setPublishCallback(new ListenableFutureCallback<String>() {
+			@Override
+			public void onFailure(Throwable ex) {
+				LOGGER.info("There was an error sending the message.");
+			}
 
-            @Override
-            public void onSuccess(String result) {
-                LOGGER.info("Message was sent successfully.");
-            }
-        });
+			@Override
+			public void onSuccess(String result) {
+				LOGGER.info("Message was sent successfully.");
+			}
+		});
 
-        return adapter;
-    }
+		return adapter;
+	}
 
-    /**
-     * an interface that allows sending a message to Pub/Sub.
-     */
-    @MessagingGateway(defaultRequestChannel = "pubSubOutputChannel")
-    public interface PubSubGateway {
-        void sendToPubSub(Event e);
-    }
+	/**
+	 * an interface that allows sending a message to Pub/Sub.
+	 */
+	@MessagingGateway(defaultRequestChannel = "pubSubOutputChannel")
+	public interface PubSubGateway {
+		void sendToPubSub(Event e);
+	}
 
 }

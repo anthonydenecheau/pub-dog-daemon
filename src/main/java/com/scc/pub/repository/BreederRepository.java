@@ -11,8 +11,8 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface BreederRepository extends CrudRepository<Breeder, String> {
-    public List<Breeder> findById(int id);
+	public List<Breeder> findById(int id);
 
-    public Breeder findByIdDog(int idDog);
+	public Breeder findByIdDog(int idDog);
 
 }

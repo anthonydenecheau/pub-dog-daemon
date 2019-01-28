@@ -15,140 +15,139 @@ import com.scc.pub.model.Event;
 
 public abstract class AbstractGenericService<T> {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractGenericService.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractGenericService.class);
 
-    protected final String domaine;
-    protected final PubSubGateway pubSubGateway;
+	protected final String domaine;
+	protected final PubSubGateway pubSubGateway;
 
-    @Autowired
-    private OdsDataRepository odsDataRepository;
+	@Autowired
+	private OdsDataRepository odsDataRepository;
 
-    public AbstractGenericService(PubSubGateway pubSubGateway, String domaine) {
-        super();
-        this.pubSubGateway = pubSubGateway;
-        this.domaine = domaine;
-    }
+	public AbstractGenericService(PubSubGateway pubSubGateway, String domaine) {
+		super();
+		this.pubSubGateway = pubSubGateway;
+		this.domaine = domaine;
+	}
 
-    protected void send(Event<T> e) {
-        this.pubSubGateway.sendToPubSub(e);
-    }
+	protected void send(Event<T> e) {
+		this.pubSubGateway.sendToPubSub(e);
+	}
 
-    protected SyncData saveDog(SyncData dog) {
-        try {
-            return odsDataRepository.save(dog);
-        } finally {
-        }
-    }
+	protected SyncData saveDog(SyncData dog) {
+		try {
+			return odsDataRepository.save(dog);
+		} finally {
+		}
+	}
 
-    protected void deleteDog(SyncData dog) {
-        try {
-            odsDataRepository.delete(dog);
-        } finally {
-        }
-    }
+	protected void deleteDog(SyncData dog) {
+		try {
+			odsDataRepository.delete(dog);
+		} finally {
+		}
+	}
 
-    protected List<SyncData> getAllChanges(String _domaine) {
-        try {
-            return odsDataRepository.findByTransfertAndDomaine("N", _domaine);
-        } finally {
-        }
-    }
+	protected List<SyncData> getAllChanges(String _domaine) {
+		try {
+			return odsDataRepository.findByTransfertAndDomaine("N", _domaine);
+		} finally {
+		}
+	}
 
-    protected void sendMessage(T message, String action) {
+	protected void sendMessage(T message, String action) {
 
-        try {
+		try {
 
-            if (message != null) {
+			if (message != null) {
 
-                switch (action) {
-                    case "U":
-                        publishChange("UPDATE", message);
-                        break;
-                    case "I":
-                        publishChange("SAVE", message);
-                        break;
-                    case "D":
-                        publishChange("DELETE", message);
-                        break;
-                    default:
-                        logger.error("Received an UNKNOWN event type {} for {}", action, message.getClass().getSimpleName());
-                        break;
-                }
-            }
-        } finally {
-        }
+				switch (action) {
+				case "U":
+					publishChange("UPDATE", message);
+					break;
+				case "I":
+					publishChange("SAVE", message);
+					break;
+				case "D":
+					publishChange("DELETE", message);
+					break;
+				default:
+					logger.error("Received an UNKNOWN event type {} for {}", action,
+							message.getClass().getSimpleName());
+					break;
+				}
+			}
+		} finally {
+		}
 
-    }
+	}
 
-    protected void publishChange(String action, T message) {
+	protected void publishChange(String action, T message) {
 
-        Instant instant = Instant.now();
-        logger.debug("Sending PubSub message {} for {} at {} ", action, message.toString(), instant);
+		Instant instant = Instant.now();
+		logger.debug("Sending PubSub message {} for {} at {} ", action, message.toString(), instant);
 
-        try {
+		try {
 
-            // Propriété type : permet de cible les objets PostgreSQL
-            // Propriété action : CRUD à effectuer sur ces mêmes objets
-            // Propriété T : data (format json)
-            List<T> messages = new ArrayList<T>();
-            messages.add(message);
-            Event<T> change = new Event<T>(
-                    message.getClass().getSimpleName(),
-                    action,
-                    messages,
-                    instant.toEpochMilli());
+			// Propriété type : permet de cible les objets PostgreSQL
+			// Propriété action : CRUD à effectuer sur ces mêmes objets
+			// Propriété T : data (format json)
+			List<T> messages = new ArrayList<T>();
+			messages.add(message);
+			Event<T> change = new Event<T>(message.getClass().getSimpleName(), action, messages,
+					instant.toEpochMilli());
 
-            send(change);
+			send(change);
 
-        } finally {
-        }
+		} finally {
+		}
 
-    }
+	}
 
-    public void syncChanges() {
+	public void syncChanges() {
 
-        List<SyncData> dogList = new ArrayList<SyncData>();
-        int idDog = 0;
+		List<SyncData> dogList = new ArrayList<SyncData>();
+		int idDog = 0;
 
-        try {
+		try {
 
-            logger.debug("syncChanges {}", this.domaine);
+			logger.debug("syncChanges {}", this.domaine);
 
-            dogList = getAllChanges(this.domaine);
-            if (dogList.size() > 0) {
+			dogList = getAllChanges(this.domaine);
+			if (dogList.size() > 0) {
 
-                logger.debug("syncChanges :: dogList {}", dogList.size());
+				logger.debug("syncChanges :: dogList {}", dogList.size());
 
-                // [[Boucle]] s/ le chien
-                for (SyncData syncDog : dogList) {
+				// [[Boucle]] s/ le chien
+				for (SyncData syncDog : dogList) {
 
-                    // 1. Maj du chien, titre etc. de la table (ODS_SYNC_DATA)
-                    idDog = (int) syncDog.getId();
-                    syncDog.setTransfert("O");
-                    saveDog(syncDog);
+					// 1. Maj du chien, titre etc. de la table (ODS_SYNC_DATA)
+					idDog = (int) syncDog.getId();
+					syncDog.setTransfert("O");
+					saveDog(syncDog);
 
-                    // 2. Lecture des infos pour le chien à synchroniser
-                    // Note : vue ODS_ELEVEUR (Oracle) == image de la table ODS_ELEVEUR (PostGRE)
-                    // Si UPDATE/INSERT et dog == null alors le chien n'est pas dans le périmètre -> on le supprime de la liste
-                    // + DELETE, dog == null -> on publie uniquement l'id à supprimer
-                    T message = populateMessage(idDog, syncDog.getAction());
-                    if (message == null) {
-                        deleteDog(syncDog);
-                        continue;
-                    }
+					// 2. Lecture des infos pour le chien à synchroniser
+					// Note : vue ODS_ELEVEUR (Oracle) == image de la table ODS_ELEVEUR (PostGRE)
+					// Si UPDATE/INSERT et dog == null alors le chien n'est pas dans le périmètre ->
+					// on le supprime de la liste
+					// + DELETE, dog == null -> on publie uniquement l'id à supprimer
+					T message = populateMessage(idDog, syncDog.getAction());
+					if (message == null) {
+						deleteDog(syncDog);
+						continue;
+					}
 
-                    // 3. Envoi du message pour maj Postgre
-                    sendMessage(message, syncDog.getAction());
+					// 3. Envoi du message pour maj Postgre
+					sendMessage(message, syncDog.getAction());
 
-                }
-                // [[Boucle]]
-            }
-        } finally {
-            dogList.clear();
-        }
-    }
+				}
+				// [[Boucle]]
+			}
+		} finally {
+			dogList.clear();
+		}
+	}
 
-    @SuppressWarnings("hiding")
-    protected abstract <T> T populateMessage(int _id, String _action);
+	@SuppressWarnings("hiding")
+	protected abstract <T> T populateMessage(int _id, String _action);
 
 }

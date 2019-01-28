@@ -11,18 +11,18 @@ import com.scc.pub.service.PersonService;
 @Component
 public class PersonScheduler {
 
-    private static final Logger logger = LoggerFactory.getLogger(PersonScheduler.class);
+	private static final Logger logger = LoggerFactory.getLogger(PersonScheduler.class);
 
-    @Autowired
-    PersonService personService;
+	@Autowired
+	PersonService personService;
 
-    @Scheduled(fixedDelayString = "${fixedDelay.in.milliseconds}")
-    public void synchronizePerson() {
+	@Scheduled(fixedDelayString = "${fixedDelay.in.milliseconds}")
+	public void synchronizePerson() {
 
-        try {
-            personService.syncChanges();
-        } finally {
-        }
-    }
+		try {
+			personService.syncChanges();
+		} finally {
+		}
+	}
 
 }

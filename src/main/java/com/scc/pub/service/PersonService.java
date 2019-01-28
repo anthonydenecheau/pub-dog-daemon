@@ -20,248 +20,246 @@ import org.springframework.stereotype.Service;
 @Service
 public class PersonService {
 
-    private static final Logger logger = LoggerFactory.getLogger(PersonService.class);
+	private static final Logger logger = LoggerFactory.getLogger(PersonService.class);
 
-    @Autowired
-    private OdsDataRepository odsDataRepository;
+	@Autowired
+	private OdsDataRepository odsDataRepository;
 
-    @Autowired
-    private BreederRepository breederRepository;
+	@Autowired
+	private BreederRepository breederRepository;
 
-    @Autowired
-    private OwnerRepository ownerRepository;
+	@Autowired
+	private OwnerRepository ownerRepository;
 
-    protected final PubConfiguration.PubSubGateway pubSubGateway;
+	protected final PubConfiguration.PubSubGateway pubSubGateway;
 
-    public PersonService(PubConfiguration.PubSubGateway pubSubGateway) {
-        super();
-        this.pubSubGateway = pubSubGateway;
-    }
+	public PersonService(PubConfiguration.PubSubGateway pubSubGateway) {
+		super();
+		this.pubSubGateway = pubSubGateway;
+	}
 
-    private List<SyncData> getAllPersons() {
+	private List<SyncData> getAllPersons() {
 
-        try {
-            return odsDataRepository.findByTransfertAndDomaine("N", "PERSONNE");
-        } finally {
-        }
+		try {
+			return odsDataRepository.findByTransfertAndDomaine("N", "PERSONNE");
+		} finally {
+		}
 
-    }
+	}
 
-    private SyncData savePerson(SyncData person) {
+	private SyncData savePerson(SyncData person) {
 
-        try {
-            return odsDataRepository.save(person);
-        } finally {
-        }
+		try {
+			return odsDataRepository.save(person);
+		} finally {
+		}
 
-    }
+	}
 
-    private void deletePerson(SyncData person) {
+	private void deletePerson(SyncData person) {
 
-        try {
-            odsDataRepository.delete(person);
-        } finally {
-        }
+		try {
+			odsDataRepository.delete(person);
+		} finally {
+		}
 
-    }
+	}
 
-    private List<Breeder> getBreederById(int personId) {
+	private List<Breeder> getBreederById(int personId) {
 
-        try {
-            return breederRepository.findById(personId);
-        } finally {
-        }
+		try {
+			return breederRepository.findById(personId);
+		} finally {
+		}
 
-    }
+	}
 
-    private List<Owner> getOwnerById(int personId) {
+	private List<Owner> getOwnerById(int personId) {
 
-        try {
-            return ownerRepository.findById(personId);
-        } finally {
-        }
+		try {
+			return ownerRepository.findById(personId);
+		} finally {
+		}
 
-    }
+	}
 
-    private void sendOwner(Event<Owner> e) {
-        this.pubSubGateway.sendToPubSub(e);
-    }
+	private void sendOwner(Event<Owner> e) {
+		this.pubSubGateway.sendToPubSub(e);
+	}
 
-    private void publishChangeOwner(String action, Owner owner) {
+	private void publishChangeOwner(String action, Owner owner) {
 
-        Instant instant = Instant.now();
-        logger.debug("Sending PubSub Person message {} for {} at {} ", action, owner.toString(), instant);
+		Instant instant = Instant.now();
+		logger.debug("Sending PubSub Person message {} for {} at {} ", action, owner.toString(), instant);
 
-        try {
+		try {
 
-            // Propriété type : permet de cible les objets PostgreSQL
-            // Propriété action : CRUD à effectuer sur ces mêmes objets
-            // Propriété T : data (format json)
-            List<Owner> owners = new ArrayList<Owner>();
-            owners.add(owner);
-            Event<Owner> change = new Event<Owner>(
-                    Owner.class.getSimpleName(),
-                    action,
-                    owners,
-                    instant.toEpochMilli());
+			// Propriété type : permet de cible les objets PostgreSQL
+			// Propriété action : CRUD à effectuer sur ces mêmes objets
+			// Propriété T : data (format json)
+			List<Owner> owners = new ArrayList<Owner>();
+			owners.add(owner);
+			Event<Owner> change = new Event<Owner>(Owner.class.getSimpleName(), action, owners, instant.toEpochMilli());
 
-            sendOwner(change);
+			sendOwner(change);
 
-        } finally {
-        }
+		} finally {
+		}
 
-    }
+	}
 
-    private void sendMessageOwner(List<Owner> owners, String action) {
+	private void sendMessageOwner(List<Owner> owners, String action) {
 
-        try {
+		try {
 
-            if (owners != null && owners.size() > 0) {
-                for (Owner owner : owners) {
-                    switch (action) {
-                        case "U":
-                            publishChangeOwner("UPDATE", owner);
-                            break;
-                        case "I":
-                            publishChangeOwner("SAVE", owner);
-                            break;
-                        case "D":
-                            publishChangeOwner("DELETE", owner);
-                            break;
-                        default:
-                            logger.error("Received an UNKNOWN event type {} for {}", action, owner.getClass().getSimpleName());
-                            break;
-                    }
-                }
-            }
+			if (owners != null && owners.size() > 0) {
+				for (Owner owner : owners) {
+					switch (action) {
+					case "U":
+						publishChangeOwner("UPDATE", owner);
+						break;
+					case "I":
+						publishChangeOwner("SAVE", owner);
+						break;
+					case "D":
+						publishChangeOwner("DELETE", owner);
+						break;
+					default:
+						logger.error("Received an UNKNOWN event type {} for {}", action,
+								owner.getClass().getSimpleName());
+						break;
+					}
+				}
+			}
 
-        } finally {
-        }
+		} finally {
+		}
 
-    }
+	}
 
-    private void publishChangeBreeder(String action, Breeder breeder) {
+	private void publishChangeBreeder(String action, Breeder breeder) {
 
-        Instant instant = Instant.now();
-        logger.debug("Sending PubSub Person message {} for {} at {} ", action, breeder.toString(), instant);
+		Instant instant = Instant.now();
+		logger.debug("Sending PubSub Person message {} for {} at {} ", action, breeder.toString(), instant);
 
-        try {
+		try {
 
-            // Propriété type : permet de cible les objets PostgreSQL
-            // Propriété action : CRUD à effectuer sur ces mêmes objets
-            // Propriété T : data (format json)
-            List<Breeder> breeders = new ArrayList<Breeder>();
-            breeders.add(breeder);
-            Event<Breeder> change = new Event<Breeder>(
-                    Breeder.class.getSimpleName(),
-                    action,
-                    breeders,
-                    instant.toEpochMilli());
+			// Propriété type : permet de cible les objets PostgreSQL
+			// Propriété action : CRUD à effectuer sur ces mêmes objets
+			// Propriété T : data (format json)
+			List<Breeder> breeders = new ArrayList<Breeder>();
+			breeders.add(breeder);
+			Event<Breeder> change = new Event<Breeder>(Breeder.class.getSimpleName(), action, breeders,
+					instant.toEpochMilli());
 
-            sendBreeder(change);
+			sendBreeder(change);
 
-        } finally {
-        }
+		} finally {
+		}
 
-    }
+	}
 
-    private void sendBreeder(Event<Breeder> e) {
-        this.pubSubGateway.sendToPubSub(e);
-    }
+	private void sendBreeder(Event<Breeder> e) {
+		this.pubSubGateway.sendToPubSub(e);
+	}
 
-    private void sendMessageBreeder(List<Breeder> breeders, String action) {
+	private void sendMessageBreeder(List<Breeder> breeders, String action) {
 
-        try {
+		try {
 
-            if (breeders != null && breeders.size() > 0) {
-                for (Breeder breeder : breeders) {
-                    switch (action) {
-                        case "U":
-                            publishChangeBreeder("UPDATE", breeder);
-                            break;
-                        case "I":
-                            publishChangeBreeder("SAVE", breeder);
-                            break;
-                        case "D":
-                            publishChangeBreeder("DELETE", breeder);
-                            break;
-                        default:
-                            logger.error("Received an UNKNOWN event type {} for {}", action, breeder.getClass().getSimpleName());
-                            break;
-                    }
-                }
-            }
+			if (breeders != null && breeders.size() > 0) {
+				for (Breeder breeder : breeders) {
+					switch (action) {
+					case "U":
+						publishChangeBreeder("UPDATE", breeder);
+						break;
+					case "I":
+						publishChangeBreeder("SAVE", breeder);
+						break;
+					case "D":
+						publishChangeBreeder("DELETE", breeder);
+						break;
+					default:
+						logger.error("Received an UNKNOWN event type {} for {}", action,
+								breeder.getClass().getSimpleName());
+						break;
+					}
+				}
+			}
 
-        } finally {
-        }
+		} finally {
+		}
 
-    }
+	}
 
-    public void syncChanges() {
+	public void syncChanges() {
 
-        try {
+		try {
 
-            List<SyncData> personList = new ArrayList<SyncData>();
-            int idPerson = 0;
+			List<SyncData> personList = new ArrayList<SyncData>();
+			int idPerson = 0;
 
-            logger.debug("syncChanges {}", "PERSONNE");
+			logger.debug("syncChanges {}", "PERSONNE");
 
-            // 0. Lecture dans la table demande de synchro pour l'ensemble des personnes (eleveurs et propriétaires) sur lesquelles 1 maj est demandée
-            personList = getAllPersons();
-            if (personList.size() > 0) {
-                // [[Boucle]] s/ la personne
-                for (SyncData syncPers : personList) {
+			// 0. Lecture dans la table demande de synchro pour l'ensemble des personnes
+			// (eleveurs et propriétaires) sur lesquelles 1 maj est demandée
+			personList = getAllPersons();
+			if (personList.size() > 0) {
+				// [[Boucle]] s/ la personne
+				for (SyncData syncPers : personList) {
 
-                    try {
+					try {
 
-                        // 1. Maj du chien de la table (ODS_SYNC_PERSONNE)
-                        idPerson = (int) syncPers.getId();
-                        syncPers.setTransfert("O");
-                        savePerson(syncPers);
+						// 1. Maj du chien de la table (ODS_SYNC_PERSONNE)
+						idPerson = (int) syncPers.getId();
+						syncPers.setTransfert("O");
+						savePerson(syncPers);
 
-                        // 2. Lecture des infos pour l'éleveur/propriétaire à synchroniser
+						// 2. Lecture des infos pour l'éleveur/propriétaire à synchroniser
 
-                        // PARTIE 1. Info ELEVEUR
-                        // Note : vue ODS_ELEVEUR (Oracle) == image de la table ODS_ELEVEUR (PostGRE)
-                        // Si UPDATE/INSERT et breeder == null alors l'éleveur n'est pas dans le périmètre -> on le supprime de la liste
-                        // + DELETE, breeder == null -> on publie uniquement l'id à supprimer
-                        List<Breeder> breeders = new ArrayList<Breeder>();
-                        if (!syncPers.getAction().equals("D"))
-                            breeders = getBreederById(idPerson);
-                        else
-                            breeders.add(new Breeder().withId(idPerson));
+						// PARTIE 1. Info ELEVEUR
+						// Note : vue ODS_ELEVEUR (Oracle) == image de la table ODS_ELEVEUR (PostGRE)
+						// Si UPDATE/INSERT et breeder == null alors l'éleveur n'est pas dans le
+						// périmètre -> on le supprime de la liste
+						// + DELETE, breeder == null -> on publie uniquement l'id à supprimer
+						List<Breeder> breeders = new ArrayList<Breeder>();
+						if (!syncPers.getAction().equals("D"))
+							breeders = getBreederById(idPerson);
+						else
+							breeders.add(new Breeder().withId(idPerson));
 
-                        // Envoi du message à ods-service pour maj Postgre
-                        if (breeders != null && breeders.size() > 0)
-                            sendMessageBreeder(breeders, syncPers.getAction());
+						// Envoi du message à ods-service pour maj Postgre
+						if (breeders != null && breeders.size() > 0)
+							sendMessageBreeder(breeders, syncPers.getAction());
 
+						// PARTIE 2. Info PROPRIETAIRE
+						// Note : vue ODS_PROPRIETAIRE (Oracle) == image de la table ODS_PROPRIETAIRE
+						// (PostGRE)
+						// Si UPDATE/INSERT et owner == null alors le propriétaire n'est pas dans le
+						// périmètre -> on le supprime de la liste
+						// + DELETE, owner == null -> on publie uniquement l'id à supprimer
+						List<Owner> owners = new ArrayList<Owner>();
+						if (!syncPers.getAction().equals("D"))
+							owners = getOwnerById(idPerson);
+						else
+							owners.add(new Owner().withId(idPerson));
 
-                        // PARTIE 2. Info PROPRIETAIRE
-                        // Note : vue ODS_PROPRIETAIRE (Oracle) == image de la table ODS_PROPRIETAIRE (PostGRE)
-                        // Si UPDATE/INSERT et owner == null alors le propriétaire n'est pas dans le périmètre -> on le supprime de la liste
-                        // + DELETE, owner == null -> on publie uniquement l'id à supprimer
-                        List<Owner> owners = new ArrayList<Owner>();
-                        if (!syncPers.getAction().equals("D"))
-                            owners = getOwnerById(idPerson);
-                        else
-                            owners.add(new Owner().withId(idPerson));
+						// Envoi du message à ods-service pour maj Postgre
+						if (owners != null && owners.size() > 0)
+							sendMessageOwner(owners, syncPers.getAction());
 
-                        // Envoi du message à ods-service pour maj Postgre
-                        if (owners != null && owners.size() > 0)
-                            sendMessageOwner(owners, syncPers.getAction());
+						if ((owners == null || owners.size() == 0) && (breeders == null || breeders.size() == 0))
+							deletePerson(syncPers);
 
-                        if ((owners == null || owners.size() == 0) && (breeders == null || breeders.size() == 0))
-                            deletePerson(syncPers);
+					} catch (Exception e) {
+						logger.error(" idPerson {} : {}", idPerson, e.getMessage());
+					} finally {
+					}
+				}
+			}
 
-                    } catch (Exception e) {
-                        logger.error(" idPerson {} : {}", idPerson, e.getMessage());
-                    } finally {
-                    }
-                }
-            }
-
-        } finally {
-        }
-    }
+		} finally {
+		}
+	}
 
 }

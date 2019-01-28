@@ -8,6 +8,6 @@ import com.scc.pub.model.Title;
 @Repository
 public interface TitleRepository extends CrudRepository<Title, String> {
 
-    public Title findById(long id);
+	public Title findById(long id);
 
 }

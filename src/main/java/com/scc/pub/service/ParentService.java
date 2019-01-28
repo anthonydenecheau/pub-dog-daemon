@@ -16,37 +16,37 @@ import org.springframework.stereotype.Service;
 @Service
 public class ParentService extends AbstractGenericService<Parent> {
 
-    private static final Logger logger = LoggerFactory.getLogger(ParentService.class);
+	private static final Logger logger = LoggerFactory.getLogger(ParentService.class);
 
-    @Autowired
-    private ParentRepository parentRepository;
+	@Autowired
+	private ParentRepository parentRepository;
 
-    public ParentService(PubSubGateway pubSubGateway) {
-        super(pubSubGateway, Constants.parentDomaine);
-    }
+	public ParentService(PubSubGateway pubSubGateway) {
+		super(pubSubGateway, Constants.parentDomaine);
+	}
 
-    public Parent getParentByIdDog(int dogId) {
+	public Parent getParentByIdDog(int dogId) {
 
-        try {
-            return parentRepository.findById(dogId);
-        } finally {
-        }
-    }
+		try {
+			return parentRepository.findById(dogId);
+		} finally {
+		}
+	}
 
-    @SuppressWarnings("unchecked")
-    @Override
-    protected <T> T populateMessage(int _id, String _action) {
+	@SuppressWarnings("unchecked")
+	@Override
+	protected <T> T populateMessage(int _id, String _action) {
 
-        Parent parent = new Parent();
-        if (!_action.equals("D")) {
-            parent = getParentByIdDog(_id);
-            if (parent == null) {
-                return null;
-            }
-        } else
-            parent.withId(_id);
+		Parent parent = new Parent();
+		if (!_action.equals("D")) {
+			parent = getParentByIdDog(_id);
+			if (parent == null) {
+				return null;
+			}
+		} else
+			parent.withId(_id);
 
-        return (T) parent;
-    }
+		return (T) parent;
+	}
 
 }

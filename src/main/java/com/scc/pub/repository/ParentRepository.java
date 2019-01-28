@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ParentRepository extends CrudRepository<Parent, String> {
-    public Parent findById(int id);
+	public Parent findById(int id);
 }

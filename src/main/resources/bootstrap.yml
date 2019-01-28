@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: pubdogdaemon
+  profiles:
+    active:
+      default
+  cloud:
+    config:
+      enabled: true
+      uri: http://localhost:8888

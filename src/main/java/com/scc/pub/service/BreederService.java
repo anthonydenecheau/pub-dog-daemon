@@ -16,39 +16,37 @@ import org.springframework.stereotype.Service;
 @Service
 public class BreederService extends AbstractGenericService<Breeder> {
 
-    private static final Logger logger = LoggerFactory.getLogger(BreederService.class);
+	private static final Logger logger = LoggerFactory.getLogger(BreederService.class);
 
-    @Autowired
-    private BreederRepository breederRepository;
+	@Autowired
+	private BreederRepository breederRepository;
 
-    public BreederService(PubSubGateway pubSubGateway) {
-        super(pubSubGateway, Constants.breederDomaine);
-    }
+	public BreederService(PubSubGateway pubSubGateway) {
+		super(pubSubGateway, Constants.breederDomaine);
+	}
 
-    public Breeder getBreederByIdDog(int dogId) {
+	public Breeder getBreederByIdDog(int dogId) {
 
-        try {
-            return breederRepository.findByIdDog(dogId);
-        } finally {
-        }
-    }
+		try {
+			return breederRepository.findByIdDog(dogId);
+		} finally {
+		}
+	}
 
-    @SuppressWarnings("unchecked")
-    @Override
-    protected <T> T populateMessage(int _id, String _action) {
+	@SuppressWarnings("unchecked")
+	@Override
+	protected <T> T populateMessage(int _id, String _action) {
 
-        Breeder breeder = new Breeder();
-        if (!_action.equals("D")) {
-            breeder = getBreederByIdDog(_id);
-            if (breeder == null) {
-                return null;
-            }
-        } else
-            breeder.withIdDog(_id);
+		Breeder breeder = new Breeder();
+		if (!_action.equals("D")) {
+			breeder = getBreederByIdDog(_id);
+			if (breeder == null) {
+				return null;
+			}
+		} else
+			breeder.withIdDog(_id);
 
-        return (T) breeder;
-    }
+		return (T) breeder;
+	}
 
 }
-
-

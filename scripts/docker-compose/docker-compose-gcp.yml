@@ -9,12 +9,10 @@ services:
     environment:
       PROFILE: "default"
       SERVER_PORT: "8200"
-      SPRING_DATASOURCE_USERNAME: "U_WEBSERVICES"
-      SPRING_DATASOURCE_PASSWORD: "INFPOLMDP155"
-      DATABASESERVER_NAME: "lof"
-      DATABASESERVER_PORT: "1521"
       #GOOGLE_PROJECT_ID: "lof-ws-test"
+      # not specify on gcp
       GOOGLE_APPLICATION_CREDENTIALS: "/tmp/lof-ws-test-5c33f02ea8c8.json" 
+      # set encrypted key on machine
       #ENCRYPT_KEY:         ${ENCRYPT_KEY}
       _JAVA_OPTIONS:       "-Xms256m -Xmx512m"
       JAVA_SECURITY_EGD: "file:/dev/./urandom"

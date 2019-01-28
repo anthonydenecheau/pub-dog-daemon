@@ -7,5 +7,5 @@ import com.scc.pub.model.Pedigree;
 
 @Repository
 public interface PedigreeRepository extends CrudRepository<Pedigree, String> {
-    public Pedigree findById(long id);
+	public Pedigree findById(long id);
 }

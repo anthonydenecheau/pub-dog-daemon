@@ -9,7 +9,7 @@ import com.scc.pub.model.Owner;
 
 @Repository
 public interface OwnerRepository extends CrudRepository<Owner, String> {
-    public List<Owner> findById(int id);
+	public List<Owner> findById(int id);
 
-    public Owner findByIdDog(int idDog);
+	public Owner findByIdDog(int idDog);
 }

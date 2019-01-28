@@ -16,37 +16,37 @@ import org.springframework.stereotype.Service;
 @Service
 public class TitleFrService extends AbstractGenericService<Title> {
 
-    private static final Logger logger = LoggerFactory.getLogger(TitleFrService.class);
+	private static final Logger logger = LoggerFactory.getLogger(TitleFrService.class);
 
-    @Autowired
-    private TitleRepository titleRepository;
+	@Autowired
+	private TitleRepository titleRepository;
 
-    public TitleFrService(PubSubGateway pubSubGateway) {
-        super(pubSubGateway, Constants.titleDomaineFr);
-    }
+	public TitleFrService(PubSubGateway pubSubGateway) {
+		super(pubSubGateway, Constants.titleDomaineFr);
+	}
 
-    public Title getTitleById(long id) {
+	public Title getTitleById(long id) {
 
-        try {
-            return titleRepository.findById(id);
-        } finally {
-        }
-    }
+		try {
+			return titleRepository.findById(id);
+		} finally {
+		}
+	}
 
-    @SuppressWarnings("unchecked")
-    @Override
-    protected <T> T populateMessage(int _id, String _action) {
+	@SuppressWarnings("unchecked")
+	@Override
+	protected <T> T populateMessage(int _id, String _action) {
 
-        Title title = new Title();
-        if (!_action.equals("D")) {
-            title = getTitleById(_id);
-            if (title == null) {
-                return null;
-            }
-        } else
-            title.withId(_id);
+		Title title = new Title();
+		if (!_action.equals("D")) {
+			title = getTitleById(_id);
+			if (title == null) {
+				return null;
+			}
+		} else
+			title.withId(_id);
 
-        return (T) title;
-    }
+		return (T) title;
+	}
 
 }

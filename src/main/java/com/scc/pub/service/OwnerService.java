@@ -12,36 +12,36 @@ import org.springframework.stereotype.Service;
 @Service
 public class OwnerService extends AbstractGenericService<Owner> {
 
-    private static final Logger logger = LoggerFactory.getLogger(OwnerService.class);
+	private static final Logger logger = LoggerFactory.getLogger(OwnerService.class);
 
-    @Autowired
-    private OwnerRepository ownerRepository;
+	@Autowired
+	private OwnerRepository ownerRepository;
 
-    public OwnerService(PubConfiguration.PubSubGateway pubSubGateway) {
-        super(pubSubGateway, Constants.ownerDomaine);
-    }
+	public OwnerService(PubConfiguration.PubSubGateway pubSubGateway) {
+		super(pubSubGateway, Constants.ownerDomaine);
+	}
 
-    public Owner getOwnerByIdDog(int dogId) {
+	public Owner getOwnerByIdDog(int dogId) {
 
-        try {
-            return ownerRepository.findByIdDog(dogId);
-        } finally {
-        }
-    }
+		try {
+			return ownerRepository.findByIdDog(dogId);
+		} finally {
+		}
+	}
 
-    @SuppressWarnings("unchecked")
-    @Override
-    protected <T> T populateMessage(int _id, String _action) {
+	@SuppressWarnings("unchecked")
+	@Override
+	protected <T> T populateMessage(int _id, String _action) {
 
-        Owner dog = new Owner();
-        if (!_action.equals("D")) {
-            dog = getOwnerByIdDog(_id);
-            if (dog == null) {
-                return null;
-            }
-        } else
-            dog.withId(_id);
+		Owner dog = new Owner();
+		if (!_action.equals("D")) {
+			dog = getOwnerByIdDog(_id);
+			if (dog == null) {
+				return null;
+			}
+		} else
+			dog.withId(_id);
 
-        return (T) dog;
-    }
+		return (T) dog;
+	}
 }

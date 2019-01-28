@@ -10,62 +10,59 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class Event<T> {
 
-    private String type;
-    protected String action;
-    protected List<T> message;
-    protected long timestamp;
+	private String type;
+	protected String action;
+	protected List<T> message;
+	protected long timestamp;
 
-    public Event() {
+	public Event() {
 
-    }
+	}
 
-    @JsonCreator
-    public Event(@JsonProperty("type") String type, @JsonProperty("action") String action, @JsonProperty("message") List<T> message, @JsonProperty("timestamp") long timestamp) {
-        this.type = type;
-        this.action = action;
-        this.message = message;
-        this.timestamp = timestamp;
-    }
+	@JsonCreator
+	public Event(@JsonProperty("type") String type, @JsonProperty("action") String action,
+			@JsonProperty("message") List<T> message, @JsonProperty("timestamp") long timestamp) {
+		this.type = type;
+		this.action = action;
+		this.message = message;
+		this.timestamp = timestamp;
+	}
 
-    public String getType() {
-        return type;
-    }
+	public String getType() {
+		return type;
+	}
 
-    public void setType(String type) {
-        this.type = type;
-    }
+	public void setType(String type) {
+		this.type = type;
+	}
 
-    public String getAction() {
-        return action;
-    }
+	public String getAction() {
+		return action;
+	}
 
-    public void setAction(String action) {
-        this.action = action;
-    }
+	public void setAction(String action) {
+		this.action = action;
+	}
 
-    public List<T> getMessage() {
-        return message;
-    }
+	public List<T> getMessage() {
+		return message;
+	}
 
-    public void setMessage(List<T> message) {
-        this.message = message;
-    }
+	public void setMessage(List<T> message) {
+		this.message = message;
+	}
 
-    public long getTimestamp() {
-        return timestamp;
-    }
+	public long getTimestamp() {
+		return timestamp;
+	}
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
+	public void setTimestamp(long timestamp) {
+		this.timestamp = timestamp;
+	}
 
-    @Override
-    public String toString() {
-        return "Event{" +
-                "type='" + type + '\'' +
-                ", action='" + action + '\'' +
-                ", message=" + message +
-                ", timestamp=" + timestamp +
-                '}';
-    }
+	@Override
+	public String toString() {
+		return "Event{" + "type='" + type + '\'' + ", action='" + action + '\'' + ", message=" + message
+				+ ", timestamp=" + timestamp + '}';
+	}
 }
